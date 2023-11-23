@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+  </head>
+  <body>
+    <input type="text" id="msg" />
+    <input type="button" id="room_send" value="房间内的广播" />
+    <input type="button" id="namespace_send" value="命名空间下的广播" />
+    <input type="button" class="join" room="001" value="加入房间001" />
+    <input type="button" class="join" room="002" value="加入房间002" />
+    <input type="button" class="leave" room="001" value="离开房间001" />
+    <input type="button" class="leave" room="002" value="离开房间002" />
+    <script>
+      var socket = io.connect('http://localhost:3000')
+      socket.on('connect', function () {
+        console.log('连接成功')
+      })
+
+      socket.on('message', function (data) {
+        console.log('客户端收到 : ', data)
+      })
+
+      document.querySelector('#room_send').onclick = function () {
+        var msg = document.querySelector('#msg').value
+        socket.emit('room_broadcast', msg)
+      }
+
+      document.querySelector('#namespace_send').onclick = function () {
+        var msg = document.querySelector('#msg').value
+        console.log(111, msg)
+        socket.emit('namespace_broadcast', msg)
+      }
+
+      var joins = document.querySelectorAll('.join')
+      for (var ix = 0; ix < joins.length; ix++) {
+        joins[ix].onclick = function () {
+          socket.emit('join', this.getAttribute('room'))
+        }
+      }
+      var leaves = document.querySelectorAll('.leave')
+      for (var ix = 0; ix < leaves.length; ix++) {
+        leaves[ix].onclick = function () {
+          socket.emit('leave', this.getAttribute('room'))
+        }
+      }
+    </script>
+  </body>
+</html>
